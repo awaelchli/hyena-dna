@@ -336,7 +336,7 @@ class SequenceLightningModule(pl.LightningModule):
 
         # Calculate torchmetrics
         torchmetrics = getattr(self, f'{prefix}_torchmetrics')
-        torchmetrics(x, y, loss=loss)
+        t_metrics = torchmetrics(x, y, loss=loss)
         
         log_on_step = 'eval' in self.hparams and self.hparams.eval.get('log_on_step', False) and prefix == 'train'
 
@@ -352,12 +352,11 @@ class SequenceLightningModule(pl.LightningModule):
         # log the whole dict, otherwise lightning takes the mean to reduce it
         # https://pytorch-lightning.readthedocs.io/en/stable/visualize/logging_advanced.html#enable-metrics-for-distributed-training
         self.log_dict(
-            torchmetrics,
+            t_metrics,
             on_step=log_on_step,
             on_epoch=True,
             prog_bar=True,
             add_dataloader_idx=False,
-            sync_dist=True,
         )
         return loss
 
